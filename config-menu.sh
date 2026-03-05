@@ -1838,18 +1838,22 @@ config_bailian() {
     clear_screen
     print_header
     
-    echo -e "${WHITE}🔶 配置阿里云百炼 (通义千问)${NC}"
+    echo -e "${WHITE}🔶 配置阿里云百炼 (DashScope)${NC}"
     print_divider
     echo ""
     
-    local current_key=$(get_env_value "OPENAI_API_KEY")
+    local current_key=$(get_env_value "DASHSCOPE_API_KEY")
     local official_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
     
-    echo -e "${CYAN}当前配置 API Key: ${WHITE}${current_key:0:8}...${NC}"
-    echo -e "${GRAY}获取 Key: https://bailian.console.aliyun.com/${NC}"
+    echo -e "${CYAN}当前配置:${NC}"
+    if [ -n "$current_key" ]; then
+        echo -e "  API Key: ${WHITE}${current_key:0:8}...${NC}"
+    else
+        echo -e "  API Key: ${GRAY}(未配置)${NC}"
+    fi
     echo ""
     
-    read -p "$(echo -e "${YELLOW}输入百炼 API Key (留空保持不变): ${NC}")" input_key < "$TTY_INPUT"
+    read -p "$(echo -e "${YELLOW}输入 DASHSCOPE_API_KEY (留空保持不变): ${NC}")" input_key < "$TTY_INPUT"
     local api_key="${input_key:-$current_key}"
     
     if [ -z "$api_key" ]; then
@@ -1861,29 +1865,30 @@ config_bailian() {
     echo ""
     echo -e "${CYAN}选择模型:${NC}"
     echo ""
-    print_menu_item "1" "qwen-max (最强能力)" "👑"
-    print_menu_item "2" "qwen-plus (均衡首选)" "⭐"
-    print_menu_item "3" "qwen-turbo (极速响应)" "⚡"
-    print_menu_item "4" "qwen-vl-max (视觉多模态)" "👁️"
+    print_menu_item "1" "qwen3-max-2026-01-23 (推荐, 最新最强)" "👑"
+    print_menu_item "2" "qwen-max (稳定版)" "⭐"
+    print_menu_item "3" "qwen-plus (均衡)" "⚡"
+    print_menu_item "4" "qwen3-coder-plus (代码)" "💻"
     print_menu_item "5" "自定义模型名称" "✏️"
     echo ""
     
     read -p "$(echo -e "${YELLOW}请选择 [1-5] (默认: 1): ${NC}")" model_choice < "$TTY_INPUT"
     case ${model_choice:-1} in
-        1) model="qwen-max" ;;
-        2) model="qwen-plus" ;;
-        3) model="qwen-turbo" ;;
-        4) model="qwen-vl-max" ;;
+        1) model="qwen3-max-2026-01-23" ;;
+        2) model="qwen-max" ;;
+        3) model="qwen-plus" ;;
+        4) model="qwen3-coder-plus" ;;
         5) read -p "$(echo -e "${YELLOW}输入模型名称: ${NC}")" model < "$TTY_INPUT" ;;
     esac
     
-    # 借助 openai provider，但是传入百炼的 base_url 和特定的 api_type
-    save_openclaw_ai_config "openai" "$api_key" "$model" "$official_url" "openai-completions"
+    # 保存配置
+    save_openclaw_ai_config "bailian" "$api_key" "$model" "$official_url" "openai-completions"
     
+    echo ""
     log_info "阿里云百炼配置完成！模型: $model"
     
     if confirm "是否测试 API 连接？" "y"; then
-        test_ai_connection "openai" "$api_key" "$model" "$official_url"
+        test_ai_connection "bailian" "$api_key" "$model" "$official_url"
     fi
     press_enter
 }
@@ -4147,6 +4152,10 @@ EOF
         opencode)
             echo "export OPENCODE_API_KEY=$api_key" >> "$env_file"
             ;;
+        bailian)
+            echo "export DASHSCOPE_API_KEY=$api_key" >> "$env_file"
+            echo "export DASHSCOPE_BASE_URL=$base_url" >> "$env_file"
+            ;;
     esac
     
     chmod 600 "$env_file"
@@ -4166,6 +4175,10 @@ EOF
             # 传递 API 类型参数（如果已设置）
             configure_custom_provider "$provider" "$api_key" "$model" "$base_url" "$config_file" "$api_type"
             openclaw_model="openai-custom/$model"
+        elif [ "$provider" = "bailian" ]; then
+            use_custom_provider=true
+            configure_custom_provider "$provider" "$api_key" "$model" "$base_url" "$config_file" "$api_type"
+            openclaw_model="bailian/$model"
         else
             case "$provider" in
                 anthropic)
