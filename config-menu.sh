@@ -4297,7 +4297,9 @@ configure_custom_provider() {
         api_type="openai-responses"
     fi
     local provider_id="${provider}-custom"
-    
+    if [ "$provider" = "bailian" ]; then
+        provider_id="bailian"
+    fi
     # 先检查是否存在旧的自定义配置，并询问是否清理
     local do_cleanup="false"
     if [ -f "$config_file" ]; then
