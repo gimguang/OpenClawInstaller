@@ -120,6 +120,7 @@ curl -fsSL https://raw.githubusercontent.com/miaoxworld/OpenClawInstaller/main/c
 - **Anthropic Claude** - claude-sonnet-4-5 / claude-opus-4-5 / claude-haiku-4-5 *(支持自定义 API 地址)*
 - **OpenAI GPT** - gpt-4o / gpt-4o-mini / gpt-4-turbo *(支持自定义 API 地址，需支持 v1/responses)*
 - **Google Gemini** - gemini-2.0-flash / gemini-1.5-pro / gemini-1.5-flash
+- **阿里百炼大模型** -原作者通过OpenAI去自定义的，单独整出来了
 
 **多模型网关:**
 - **OpenRouter** - 多模型网关，一个 Key 用遍所有模型 (claude-sonnet-4 / gpt-4o / gemini-pro-1.5)
