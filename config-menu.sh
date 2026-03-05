@@ -960,6 +960,7 @@ config_ai_model() {
     echo -e "${WHITE}实验性:${NC}"
     print_menu_item "15" "Google Gemini CLI" "🧪"
     print_menu_item "16" "Google Antigravity" "🚀"
+    print_menu_item "17" "阿里云百炼 (DashScope)" "🔶"
     echo ""
     print_menu_item "0" "返回主菜单" "↩️"
     echo ""
@@ -984,6 +985,7 @@ config_ai_model() {
         14) config_minimax ;;
         15) config_google_gemini_cli ;;
         16) config_google_antigravity ;;
+        17) config_bailian ;;
         0) return ;;
         *) log_error "无效选择"; press_enter; config_ai_model ;;
     esac
@@ -1832,7 +1834,59 @@ config_azure_openai() {
     
     press_enter
 }
-
+config_bailian() {
+    clear_screen
+    print_header
+    
+    echo -e "${WHITE}🔶 配置阿里云百炼 (通义千问)${NC}"
+    print_divider
+    echo ""
+    
+    local current_key=$(get_env_value "OPENAI_API_KEY")
+    local official_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    
+    echo -e "${CYAN}当前配置 API Key: ${WHITE}${current_key:0:8}...${NC}"
+    echo -e "${GRAY}获取 Key: https://bailian.console.aliyun.com/${NC}"
+    echo ""
+    
+    read -p "$(echo -e "${YELLOW}输入百炼 API Key (留空保持不变): ${NC}")" input_key < "$TTY_INPUT"
+    local api_key="${input_key:-$current_key}"
+    
+    if [ -z "$api_key" ]; then
+        log_error "API Key 不能为空"
+        press_enter
+        return
+    fi
+    
+    echo ""
+    echo -e "${CYAN}选择模型:${NC}"
+    echo ""
+    print_menu_item "1" "qwen-max (最强能力)" "👑"
+    print_menu_item "2" "qwen-plus (均衡首选)" "⭐"
+    print_menu_item "3" "qwen-turbo (极速响应)" "⚡"
+    print_menu_item "4" "qwen-vl-max (视觉多模态)" "👁️"
+    print_menu_item "5" "自定义模型名称" "✏️"
+    echo ""
+    
+    read -p "$(echo -e "${YELLOW}请选择 [1-5] (默认: 1): ${NC}")" model_choice < "$TTY_INPUT"
+    case ${model_choice:-1} in
+        1) model="qwen-max" ;;
+        2) model="qwen-plus" ;;
+        3) model="qwen-turbo" ;;
+        4) model="qwen-vl-max" ;;
+        5) read -p "$(echo -e "${YELLOW}输入模型名称: ${NC}")" model < "$TTY_INPUT" ;;
+    esac
+    
+    # 借助 openai provider，但是传入百炼的 base_url 和特定的 api_type
+    save_openclaw_ai_config "openai" "$api_key" "$model" "$official_url" "openai-completions"
+    
+    log_info "阿里云百炼配置完成！模型: $model"
+    
+    if confirm "是否测试 API 连接？" "y"; then
+        test_ai_connection "openai" "$api_key" "$model" "$official_url"
+    fi
+    press_enter
+}
 config_groq() {
     clear_screen
     print_header
