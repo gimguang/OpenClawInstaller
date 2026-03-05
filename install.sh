@@ -2,16 +2,16 @@
 #
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║                                                                           ║
-# ║   🦞 OpenClaw 一键部署脚本 v1.0.0                                          ║
+# ║   🦞 OpenClaw 一键部署脚本 v1.0.1                                          ║
 # ║   智能 AI 助手部署工具 - 支持多平台多模型                                    ║
 # ║                                                                           ║
-# ║   GitHub: https://github.com/miaoxworld/OpenClawInstaller                 ║
+# ║   GitHub: https://github.com/gimguang/OpenClawInstaller                   ║
 # ║   官方文档: https://clawd.bot/docs                                         ║
 # ║                                                                           ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 #
 # 使用方法:
-#   curl -fsSL https://raw.githubusercontent.com/miaoxworld/OpenClawInstaller/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/gimguang/OpenClawInstaller/main/install.sh | bash
 #   或本地执行: chmod +x install.sh && ./install.sh
 #
 
@@ -42,7 +42,7 @@ NC='\033[0m' # 无颜色
 OPENCLAW_VERSION="latest"
 CONFIG_DIR="$HOME/.openclaw"
 MIN_NODE_VERSION=22
-GITHUB_REPO="miaoxworld/OpenClawInstaller"
+GITHUB_REPO="gimguang/OpenClawInstaller"
 GITHUB_RAW_URL="https://raw.githubusercontent.com/$GITHUB_REPO/main"
 
 # ================================ 工具函数 ================================
@@ -1627,7 +1627,7 @@ main() {
     echo -e "  🔧 ${CYAN}可视化配置${NC} - AI 模型、消息渠道一键配置"
     echo -e "  💻 ${CYAN}跨平台${NC} - 支持 macOS、Windows、Linux"
     echo ""
-    echo -e "  👉 ${PURPLE}下载地址: https://github.com/miaoxworld/openclaw-manager${NC}"
+    echo -e "  👉 ${PURPLE}下载地址: https://github.com/gimguang/openclaw-manager${NC}"
     echo ""
     
     # 询问是否打开配置菜单进行详细配置
