@@ -392,6 +392,10 @@ EOF
         ollama)
             echo "export OLLAMA_HOST=${BASE_URL:-http://localhost:11434}" >> "$env_file"
             ;;
+        bailian)
+            echo "export DASHSCOPE_API_KEY=$AI_KEY" >> "$env_file"
+            echo "export DASHSCOPE_BASE_URL=$BASE_URL" >> "$env_file"
+            ;;
     esac
     
     chmod 600 "$env_file"
@@ -412,6 +416,11 @@ EOF
             # 传递 API 类型参数（如果已设置）
             configure_custom_provider "$AI_PROVIDER" "$AI_KEY" "$AI_MODEL" "$BASE_URL" "$openclaw_json" "$AI_API_TYPE"
             openclaw_model="openai-custom/$AI_MODEL"
+        elif [ "$AI_PROVIDER" = "bailian" ]; then
+            use_custom_provider=true
+            # 传递参数生成 bailian 的 provider 结构
+            configure_custom_provider "bailian" "$AI_KEY" "$AI_MODEL" "$BASE_URL" "$openclaw_json" "openai-completions"
+            openclaw_model="bailian/$AI_MODEL"
         else
             case "$AI_PROVIDER" in
                 anthropic)
@@ -508,7 +517,9 @@ configure_custom_provider() {
         api_type="openai-responses"
     fi
     local provider_id="${provider}-custom"
-    
+    if [ "$provider" = "bailian" ]; then
+        provider_id="bailian"
+    fi
     # 先检查是否存在旧的自定义配置，并询问是否清理
     local do_cleanup="false"
     if [ -f "$config_file" ]; then
@@ -1109,30 +1120,29 @@ setup_ai_provider() {
             esac
             ;;
         10)
-            AI_PROVIDER="openai" # 借用 OpenAI 的处理通道
+            AI_PROVIDER="bailian"
             echo ""
             echo -e "${CYAN}配置阿里云百炼 (DashScope)${NC}"
-            echo -e "${GRAY}获取 Key: https://bailian.console.aliyun.com/${NC}"
+            echo -e "${GRAY}官方 API: https://bailian.console.aliyun.com/${NC}"
             echo ""
-            # 自动注入百炼的兼容 API 地址
             BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
             echo -en "${YELLOW}输入 API Key: ${NC}"; read AI_KEY < "$TTY_INPUT"
             echo ""
             echo "选择模型:"
-            echo "  1) qwen-max (最强能力)"
-            echo "  2) qwen-plus (均衡首选)"
-            echo "  3) qwen-turbo (极速响应)"
-            echo "  4) qwen-vl-max (视觉多模态)"
+            echo "  1) qwen3-max-2026-01-23 (推荐, 最新最强)"
+            echo "  2) qwen-max (稳定版)"
+            echo "  3) qwen-plus (均衡)"
+            echo "  4) qwen3-coder-plus (代码)"
             echo "  5) 自定义模型名称"
             echo -en "${YELLOW}选择模型 [1-5] (默认: 1): ${NC}"; read model_choice < "$TTY_INPUT"
             case $model_choice in
-                2) AI_MODEL="qwen-plus" ;;
-                3) AI_MODEL="qwen-turbo" ;;
-                4) AI_MODEL="qwen-vl-max" ;;
+                2) AI_MODEL="qwen-max" ;;
+                3) AI_MODEL="qwen-plus" ;;
+                4) AI_MODEL="qwen3-coder-plus" ;;
                 5) echo -en "${YELLOW}输入模型名称: ${NC}"; read AI_MODEL < "$TTY_INPUT" ;;
-                *) AI_MODEL="qwen-max" ;;
+                *) AI_MODEL="qwen3-max-2026-01-23" ;;
             esac
-            # 强制指定兼容格式
+            # 严格使用百炼兼容的 API 格式
             AI_API_TYPE="openai-completions"
             ;;
         *)
