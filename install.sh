@@ -869,6 +869,7 @@ setup_ai_provider() {
     echo "  7) ⚡ Groq (超快推理)"
     echo "  8) 🌬️ Mistral AI"
     echo "  9) 🟠 Ollama (本地模型)"
+    echo "  10) 🔶 阿里云百炼 (通义千问)"
     echo ""
     echo -e "${GRAY}提示: 支持自定义 API 地址（通过 openclaw.json 配置自定义 Provider）${NC}"
     echo ""
@@ -1106,6 +1107,33 @@ setup_ai_provider() {
                 4) echo -en "${YELLOW}输入模型名称: ${NC}"; read AI_MODEL < "$TTY_INPUT" ;;
                 *) AI_MODEL="llama3" ;;
             esac
+            ;;
+        10)
+            AI_PROVIDER="openai" # 借用 OpenAI 的处理通道
+            echo ""
+            echo -e "${CYAN}配置阿里云百炼 (DashScope)${NC}"
+            echo -e "${GRAY}获取 Key: https://bailian.console.aliyun.com/${NC}"
+            echo ""
+            # 自动注入百炼的兼容 API 地址
+            BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            echo -en "${YELLOW}输入 API Key: ${NC}"; read AI_KEY < "$TTY_INPUT"
+            echo ""
+            echo "选择模型:"
+            echo "  1) qwen-max (最强能力)"
+            echo "  2) qwen-plus (均衡首选)"
+            echo "  3) qwen-turbo (极速响应)"
+            echo "  4) qwen-vl-max (视觉多模态)"
+            echo "  5) 自定义模型名称"
+            echo -en "${YELLOW}选择模型 [1-5] (默认: 1): ${NC}"; read model_choice < "$TTY_INPUT"
+            case $model_choice in
+                2) AI_MODEL="qwen-plus" ;;
+                3) AI_MODEL="qwen-turbo" ;;
+                4) AI_MODEL="qwen-vl-max" ;;
+                5) echo -en "${YELLOW}输入模型名称: ${NC}"; read AI_MODEL < "$TTY_INPUT" ;;
+                *) AI_MODEL="qwen-max" ;;
+            esac
+            # 强制指定兼容格式
+            AI_API_TYPE="openai-completions"
             ;;
         *)
             # 默认使用 Anthropic
